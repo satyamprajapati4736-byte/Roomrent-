@@ -7,10 +7,15 @@
   </head>
   <body>
     <div id="root">
-      <div style="padding: 20px; text-align: center; font-family: sans-serif;">
-        Loading application... if this screen stays white, check your internet connection or try a modern browser.
+      <div id="loading-message" style="padding: 20px; text-align: center; font-family: sans-serif; color: #94a3b8;">
+        Loading application... if this screen stays white, your browser might not support modern features.
       </div>
     </div>
+    <script nomodule>
+      document.getElementById('loading-message').innerHTML = 
+        '<h1 style="color: #ef4444;">Browser Not Supported</h1>' +
+        '<p>Your browser is too old to run this application. Please use a modern browser like Chrome, Safari, or Firefox.</p>';
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

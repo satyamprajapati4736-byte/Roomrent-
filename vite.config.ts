@@ -27,6 +27,7 @@ export default defineConfig(({ mode }) => {
     build: {
       outDir: 'dist',
       sourcemap: true,
+      target: 'es2015',
     }
   };
 });
