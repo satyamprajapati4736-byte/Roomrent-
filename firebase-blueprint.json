@@ -1,0 +1,73 @@
+{
+  "entities": {
+    "tenants": {
+      "title": "Tenant",
+      "description": "A tenant renting a room.",
+      "type": "object",
+      "properties": {
+        "room_number": { "type": "string", "description": "Room number" },
+        "name": { "type": "string", "description": "Tenant name" },
+        "phone": { "type": "string", "description": "Phone number" },
+        "monthly_rent": { "type": "number", "description": "Monthly rent amount" },
+        "electricity_units": { "type": "number", "description": "Electricity units consumed" },
+        "electricity_rate": { "type": "number", "description": "Rate per unit" },
+        "payment_status": { "type": "string", "enum": ["Paid", "Pending"], "description": "Current payment status" },
+        "due_day": { "type": "integer", "description": "Day of the month rent is due (1-31)" },
+        "owner_id": { "type": "string", "description": "UID of the landlord" },
+        "created_at": { "type": "string", "format": "date-time", "description": "Creation timestamp" }
+      },
+      "required": ["room_number", "name", "phone", "monthly_rent", "owner_id"]
+    },
+    "payment_history": {
+      "title": "Payment History",
+      "description": "Record of a rent payment.",
+      "type": "object",
+      "properties": {
+        "tenant_id": { "type": "string", "description": "ID of the tenant" },
+        "amount": { "type": "number", "description": "Amount paid" },
+        "payment_date": { "type": "string", "format": "date-time", "description": "Date of payment" },
+        "owner_id": { "type": "string", "description": "UID of the landlord" }
+      },
+      "required": ["tenant_id", "amount", "owner_id"]
+    },
+    "settings": {
+      "title": "User Settings",
+      "description": "Landlord configuration for reminders.",
+      "type": "object",
+      "properties": {
+        "owner_id": { "type": "string", "description": "UID of the landlord" },
+        "whatsapp_template": { "type": "string", "description": "Template for WhatsApp reminders" },
+        "reminder_days_before": { "type": "integer", "description": "Days before due date to show reminder" }
+      },
+      "required": ["owner_id", "whatsapp_template", "reminder_days_before"]
+    },
+    "users": {
+      "title": "User",
+      "description": "Application user (landlord).",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "description": "User email" },
+        "role": { "type": "string", "enum": ["admin", "user"], "description": "User role" }
+      },
+      "required": ["email", "role"]
+    }
+  },
+  "firestore": {
+    "tenants/{tenantId}": {
+      "schema": "tenants",
+      "description": "Collection of tenants"
+    },
+    "payment_history/{historyId}": {
+      "schema": "payment_history",
+      "description": "Collection of payment records"
+    },
+    "users/{userId}": {
+      "schema": "users",
+      "description": "User profile data"
+    },
+    "settings/{settingsId}": {
+      "schema": "settings",
+      "description": "User settings for reminders"
+    }
+  }
+}

@@ -1,0 +1,48 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif;
+  
+  --color-primary: #3B82F6;
+  --color-secondary: #6366F1;
+  --color-accent: #14B8A6;
+  --color-card: #111827;
+  --color-text-primary: #F8FAFC;
+  --color-text-secondary: #94A3B8;
+  --color-border-subtle: #1F2937;
+  
+  --color-status-pending: #F59E0B;
+  --color-status-paid: #22C55E;
+  --color-status-overdue: #EF4444;
+}
+
+@layer base {
+  body {
+    @apply text-text-primary antialiased;
+  }
+}
+
+.glass {
+  @apply bg-card/80 backdrop-blur-xl border border-border-subtle shadow-2xl;
+}
+
+.btn-primary {
+  @apply bg-gradient-to-r from-primary to-secondary text-white font-semibold py-3 rounded-2xl transition-all shadow-lg shadow-primary/20 active:scale-[0.98] flex items-center justify-center gap-2;
+}
+
+.btn-secondary {
+  @apply bg-transparent border border-border-subtle hover:bg-white/5 text-text-primary font-semibold py-3 rounded-2xl transition-all active:scale-[0.98] flex items-center justify-center gap-2;
+}
+
+.badge-pulse {
+  @apply relative flex h-2 w-2 mr-2;
+}
+
+.badge-pulse-dot {
+  @apply animate-ping absolute inline-flex h-full w-full rounded-full opacity-75;
+}
+
+.badge-pulse-inner {
+  @apply relative inline-flex rounded-full h-2 w-2;
+}

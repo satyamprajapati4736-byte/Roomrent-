@@ -1,0 +1,111 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Fields:
+    //   - email: string (required)
+    //   - role: string (required, 'admin' or 'user')
+    //
+    // Collection: tenants
+    // Fields:
+    //   - room_number: string (required)
+    //   - name: string (required)
+    //   - phone: string (required)
+    //   - monthly_rent: number (required)
+    //   - electricity_units: number
+    //   - electricity_rate: number
+    //   - payment_status: string ('Paid' or 'Pending')
+    //   - due_day: number (required, 1-31)
+    //   - owner_id: string (required, matches auth.uid)
+    //   - created_at: timestamp
+    //
+    // Collection: payment_history
+    // Fields:
+    //   - tenant_id: string (required)
+    //   - amount: number (required)
+    //   - payment_date: timestamp
+    //   - owner_id: string (required, matches auth.uid)
+    //
+    // Collection: settings
+    // Fields:
+    //   - owner_id: string (required, matches auth.uid)
+    //   - whatsapp_template: string (required)
+    //   - reminder_days_before: number (required)
+    //
+    // ===============================================================
+
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isDataOwner() {
+      return isAuthenticated() && request.auth.uid == resource.data.owner_id;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && 
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+         request.auth.token.email == "satyamprajapati4736@gmail.com");
+    }
+
+    // Validation Functions
+    function isValidTenant(data) {
+      return data.room_number is string && data.room_number.size() > 0 && data.room_number.size() < 20 &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
+             data.phone is string && data.phone.size() >= 10 && data.phone.size() <= 15 &&
+             data.monthly_rent is number && data.monthly_rent >= 0 &&
+             data.due_day is number && data.due_day >= 1 && data.due_day <= 31 &&
+             data.owner_id == request.auth.uid;
+    }
+
+    function isValidHistory(data) {
+      return data.tenant_id is string &&
+             data.amount is number && data.amount >= 0 &&
+             data.owner_id == request.auth.uid;
+    }
+
+    function isValidSettings(data) {
+      return data.owner_id == request.auth.uid &&
+             data.whatsapp_template is string && data.whatsapp_template.size() > 0 && data.whatsapp_template.size() < 1000 &&
+             data.reminder_days_before is number && data.reminder_days_before >= 0 && data.reminder_days_before <= 30;
+    }
+
+    // Rules
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isAuthenticated() && request.resource.data.role == 'user';
+      allow update: if isAdmin();
+    }
+
+    match /tenants/{tenantId} {
+      allow read: if isDataOwner() || isAdmin();
+      allow create: if isAuthenticated() && isValidTenant(request.resource.data);
+      allow update: if (isDataOwner() || isAdmin()) && isValidTenant(request.resource.data);
+      allow delete: if isDataOwner() || isAdmin();
+    }
+
+    match /payment_history/{historyId} {
+      allow read: if isDataOwner() || isAdmin();
+      allow create: if isAuthenticated() && isValidHistory(request.resource.data);
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    match /settings/{settingsId} {
+      allow read: if isDataOwner() || isAdmin();
+      allow create: if isAuthenticated() && isValidSettings(request.resource.data);
+      allow update: if (isDataOwner() || isAdmin()) && isValidSettings(request.resource.data);
+      allow delete: if isAdmin();
+    }
+  }
+}
